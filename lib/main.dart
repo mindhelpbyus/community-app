@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'widgets/app_layout.dart';
+import 'widgets/bottom_navigation_bar.dart';
 import 'pages/explore_page.dart';
+import 'pages/doctor_profile_page.dart';
 
 void main() {
   runApp(const FigmaToCodeApp());
@@ -16,14 +18,50 @@ class FigmaToCodeApp extends StatefulWidget {
 
 class _FigmaToCodeAppState extends State<FigmaToCodeApp> {
   int _selectedIndex = 0;
+  bool _showDoctorProfile = false;
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+      _showDoctorProfile = false; // Reset doctor profile when navigating via bottom nav
+    });
+  }
+
+  void _showDoctorProfilePage() {
+    setState(() {
+      _showDoctorProfile = true;
+    });
+  }
+
+  void _hideDoctorProfile() {
+    setState(() {
+      _showDoctorProfile = false;
     });
   }
 
   Widget _getSelectedPage() {
+    if (_showDoctorProfile) {
+      return Scaffold(
+        backgroundColor: const Color(0xFFFAF8F1),
+        body: DoctorProfilePage(
+          onBackPressed: _hideDoctorProfile,
+          onProfileTap: () {
+            print('Profile tapped from doctor profile');
+          },
+          onSearchTap: () {
+            print('Search tapped from doctor profile');
+          },
+          onNotificationTap: () {
+            print('Notification tapped from doctor profile');
+          },
+        ),
+        bottomNavigationBar: CustomBottomNavigationBar(
+          selectedIndex: _selectedIndex,
+          onItemTapped: _onItemTapped,
+        ),
+      );
+    }
+
     switch (_selectedIndex) {
       case 0:
         return ListView(
@@ -34,7 +72,7 @@ class _FigmaToCodeAppState extends State<FigmaToCodeApp> {
       case 2:
         return ListView(
           children: [
-            ExplorePage(),
+            ExplorePage(onDoctorTap: _showDoctorProfilePage),
           ],
         );
       default:
@@ -63,24 +101,51 @@ class _FigmaToCodeAppState extends State<FigmaToCodeApp> {
       theme: ThemeData.light().copyWith(
         scaffoldBackgroundColor: const Color(0xFFFAF8F1),
       ),
-      home: AppLayout(
-        selectedIndex: _selectedIndex,
-        onItemTapped: _onItemTapped,
-        onProfileTap: () {
-          // Handle profile tap
-          print('Profile tapped');
-        },
-        onSearchTap: () {
-          // Handle search tap
-          print('Search tapped');
-        },
-        onNotificationTap: () {
-          // Handle notification tap
-          print('Notification tapped');
-        },
-        showNotificationDot: true,
-        child: _getSelectedPage(),
-      ),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => _showDoctorProfile 
+          ? _getSelectedPage() // Return the doctor profile Scaffold directly
+          : AppLayout(
+              selectedIndex: _selectedIndex,
+              onItemTapped: _onItemTapped,
+              onProfileTap: () {
+                // Handle profile tap
+                print('Profile tapped');
+              },
+              onSearchTap: () {
+                // Handle search tap
+                print('Search tapped');
+              },
+              onNotificationTap: () {
+                // Handle notification tap
+                print('Notification tapped');
+              },
+              showNotificationDot: true,
+              child: _getSelectedPage(),
+            ),
+        '/doctor-profile': (context) => AppLayout(
+          selectedIndex: _selectedIndex,
+          onItemTapped: _onItemTapped,
+          onProfileTap: () {
+            // Handle profile tap
+            print('Profile tapped');
+          },
+          onSearchTap: () {
+            // Handle search tap
+            print('Search tapped');
+          },
+          onNotificationTap: () {
+            // Handle notification tap
+            print('Notification tapped');
+          },
+          showNotificationDot: true,
+          child: ListView(
+            children: [
+              DoctorProfilePage(),
+            ],
+          ),
+        ),
+      },
     );
   }
 }
