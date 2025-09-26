@@ -1,67 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'widgets/app_layout.dart';
+import 'pages/explore_page.dart';
 
 void main() {
   runApp(const FigmaToCodeApp());
-}
-
-class BellIconPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = const Color(0xFF7C7C7C)
-      ..style = PaintingStyle.fill;
-
-    final strokePaint = Paint()
-      ..color = const Color(0xFF7C7C7C)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
-
-    final center = Offset(size.width / 2, size.height / 2);
-
-    // Bell body (main bell shape)
-    final bellPath = Path();
-    final bellWidth = size.width * 0.6;
-    final bellHeight = size.height * 0.5;
-
-    // Create bell shape using curves
-    bellPath.moveTo(center.dx - bellWidth / 2, center.dy + bellHeight / 4);
-    bellPath.quadraticBezierTo(center.dx - bellWidth / 2,
-        center.dy - bellHeight / 2, center.dx, center.dy - bellHeight / 2);
-    bellPath.quadraticBezierTo(
-        center.dx + bellWidth / 2,
-        center.dy - bellHeight / 2,
-        center.dx + bellWidth / 2,
-        center.dy + bellHeight / 4);
-    bellPath.lineTo(center.dx - bellWidth / 2, center.dy + bellHeight / 4);
-
-    canvas.drawPath(bellPath, strokePaint);
-
-    // Bell bottom line
-    canvas.drawLine(
-      Offset(center.dx - bellWidth / 2, center.dy + bellHeight / 4),
-      Offset(center.dx + bellWidth / 2, center.dy + bellHeight / 4),
-      strokePaint,
-    );
-
-    // Bell top (small rectangle for the bell top)
-    final topRect = Rect.fromCenter(
-      center: Offset(center.dx, center.dy - bellHeight / 2 - 2),
-      width: 4,
-      height: 3,
-    );
-    canvas.drawRect(topRect, paint);
-
-    // Bell clapper (small circle at bottom)
-    canvas.drawCircle(
-      Offset(center.dx, center.dy + bellHeight / 4 + 3),
-      1.5,
-      paint,
-    );
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
 
 class FigmaToCodeApp extends StatefulWidget {
@@ -80,6 +23,39 @@ class _FigmaToCodeAppState extends State<FigmaToCodeApp> {
     });
   }
 
+  Widget _getSelectedPage() {
+    switch (_selectedIndex) {
+      case 0:
+        return ListView(
+          children: [
+            HomePageNew(),
+          ],
+        );
+      case 2:
+        return ListView(
+          children: [
+            ExplorePage(),
+          ],
+        );
+      default:
+        return ListView(
+          children: [
+            Center(
+              child: Text(
+                'Page under construction',
+                style: TextStyle(
+                  color: const Color(0xFF242424),
+                  fontSize: 18,
+                  fontFamily: 'Mulish',
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -87,108 +63,23 @@ class _FigmaToCodeAppState extends State<FigmaToCodeApp> {
       theme: ThemeData.light().copyWith(
         scaffoldBackgroundColor: const Color(0xFFFAF8F1),
       ),
-      home: Scaffold(
-        backgroundColor: const Color(0xFFFAF8F1),
-        body: Column(
-          children: [
-            Expanded(
-              child: ListView(children: [
-                HomePageNew(),
-              ]),
-            ),
-            // Sticky bottom navigation
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Color(0x28000000),
-                    blurRadius: 4,
-                    offset: Offset(0, -2),
-                    spreadRadius: 0,
-                  )
-                ],
-              ),
-              child: SafeArea(
-                top: false,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _buildNavItem(
-                        index: 0,
-                        iconPath: 'public/images/HouseSimple.svg',
-                        label: 'Home',
-                      ),
-                      _buildNavItem(
-                        index: 1,
-                        iconPath: 'public/images/ChatTeardropDots.svg',
-                        label: 'Chat',
-                      ),
-                      _buildNavItem(
-                        index: 2,
-                        iconPath: 'public/images/UsersThree.svg',
-                        label: 'Community',
-                      ),
-                      _buildNavItem(
-                        index: 3,
-                        iconPath: 'public/images/Tree.svg',
-                        label: 'Plan',
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNavItem({
-    required int index,
-    required String iconPath,
-    required String label,
-  }) {
-    final bool isSelected = _selectedIndex == index;
-    final Color color = isSelected ? const Color(0xFFCE6E59) : const Color(0xFF7C7C7C);
-    final FontWeight fontWeight = isSelected ? FontWeight.w800 : FontWeight.w600;
-
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => _onItemTapped(index),
-        child: Container(
-          height: 49,
-          decoration: BoxDecoration(
-            color: isSelected ? const Color(0xFFFFF5F3) : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SvgPicture.asset(
-                iconPath,
-                width: 20,
-                height: 20,
-                color: color,
-              ),
-              SizedBox(height: 4),
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: color,
-                  fontSize: 12,
-                  fontFamily: 'Mulish',
-                  fontWeight: fontWeight,
-                ),
-              ),
-            ],
-          ),
-        ),
+      home: AppLayout(
+        selectedIndex: _selectedIndex,
+        onItemTapped: _onItemTapped,
+        onProfileTap: () {
+          // Handle profile tap
+          print('Profile tapped');
+        },
+        onSearchTap: () {
+          // Handle search tap
+          print('Search tapped');
+        },
+        onNotificationTap: () {
+          // Handle notification tap
+          print('Notification tapped');
+        },
+        showNotificationDot: true,
+        child: _getSelectedPage(),
       ),
     );
   }
@@ -203,26 +94,12 @@ class HomePageNew extends StatelessWidget {
           width: double.infinity,
           height: 1400,
           padding: EdgeInsets.symmetric(horizontal: 16),
-          decoration: ShapeDecoration(
-            color: const Color(0xFFFAF8F1),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
-            ),
-            shadows: [
-              BoxShadow(
-                color: Color(0x051F1F1F),
-                blurRadius: 120,
-                offset: Offset(0, 24),
-                spreadRadius: 0,
-              )
-            ],
-          ),
           child: Stack(
             children: [
               // Header greeting section
               Positioned(
                 left: 16,
-                top: 90,
+                top: 8,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -250,110 +127,10 @@ class HomePageNew extends StatelessWidget {
                   ],
                 ),
               ),
-              // Top navigation icons
-              Positioned(
-                left: 16,
-                top: 26,
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: ShapeDecoration(
-                    color: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    shadows: [
-                      BoxShadow(
-                        color: Color(0x28000000),
-                        blurRadius: 4,
-                        offset: Offset(0, 2),
-                        spreadRadius: 0,
-                      )
-                    ],
-                  ),
-                  child: Center(
-                    child: SvgPicture.asset(
-                      'public/images/user 1.svg',
-                      width: 22,
-                      height: 22,
-                    ),
-                  ),
-                ),
-              ),
-              Positioned(
-                right: 68,
-                top: 26,
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: ShapeDecoration(
-                    color: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    shadows: [
-                      BoxShadow(
-                        color: Color(0x28000000),
-                        blurRadius: 4,
-                        offset: Offset(0, 2),
-                        spreadRadius: 0,
-                      )
-                    ],
-                  ),
-                  child: Center(
-                    child: SvgPicture.asset(
-                      'public/images/search.svg',
-                      width: 22,
-                      height: 22,
-                    ),
-                  ),
-                ),
-              ),
-              Positioned(
-                right: 16,
-                top: 26,
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: ShapeDecoration(
-                    color: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    shadows: [
-                      BoxShadow(
-                        color: Color(0x28000000),
-                        blurRadius: 4,
-                        offset: Offset(0, 2),
-                        spreadRadius: 0,
-                      )
-                    ],
-                  ),
-                  child: Center(
-                    child: CustomPaint(
-                      size: Size(22, 22),
-                      painter: BellIconPainter(),
-                    ),
-                  ),
-                ),
-              ),
-              // Notification dot
-              Positioned(
-                right: 14,
-                top: 24,
-                child: Container(
-                  width: 8,
-                  height: 8,
-                  decoration: ShapeDecoration(
-                    color: const Color(0xFFCF6F59),
-                    shape: OvalBorder(),
-                  ),
-                ),
-              ),
               // Main content section
               Positioned(
                 left: 16,
-                top: 160,
+                top: 94,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -487,10 +264,8 @@ class HomePageNew extends StatelessWidget {
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         physics: const AlwaysScrollableScrollPhysics(),
-                        padding: const EdgeInsets.only(
-                            left: 0,
-                            right: 16,
-                            top: 50),
+                        padding:
+                            const EdgeInsets.only(left: 0, right: 16, top: 50),
                         child: Row(
                           children: [
                             // Relationships Card
@@ -520,14 +295,16 @@ class HomePageNew extends StatelessWidget {
                                             width: 141,
                                             height: 150,
                                             decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(20),
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
                                               color: Colors.transparent,
                                             ),
                                           ),
                                           const SizedBox(height: 10),
                                           // Text content
                                           Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
                                               const Text(
                                                 'Relationships',
@@ -557,7 +334,8 @@ class HomePageNew extends StatelessWidget {
                                                       color: Color(0xFFCF6F59),
                                                       fontSize: 14,
                                                       fontFamily: 'Mulish',
-                                                      fontWeight: FontWeight.w600,
+                                                      fontWeight:
+                                                          FontWeight.w600,
                                                     ),
                                                   ),
                                                   const SizedBox(width: 4),
@@ -584,7 +362,8 @@ class HomePageNew extends StatelessWidget {
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(20),
                                         image: const DecorationImage(
-                                          image: AssetImage("public/images/Couple.png"),
+                                          image: AssetImage(
+                                              "public/images/Couple.png"),
                                           fit: BoxFit.cover,
                                         ),
                                       ),
@@ -620,14 +399,16 @@ class HomePageNew extends StatelessWidget {
                                             width: 141,
                                             height: 150,
                                             decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(20),
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
                                               color: Colors.transparent,
                                             ),
                                           ),
                                           const SizedBox(height: 10),
                                           // Text content
                                           Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
                                               const Text(
                                                 'LGBT Support',
@@ -657,7 +438,8 @@ class HomePageNew extends StatelessWidget {
                                                       color: Color(0xFFCF6F59),
                                                       fontSize: 14,
                                                       fontFamily: 'Mulish',
-                                                      fontWeight: FontWeight.w600,
+                                                      fontWeight:
+                                                          FontWeight.w600,
                                                     ),
                                                   ),
                                                   const SizedBox(width: 4),
@@ -721,14 +503,16 @@ class HomePageNew extends StatelessWidget {
                                             width: 141,
                                             height: 150,
                                             decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(20),
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
                                               color: Colors.transparent,
                                             ),
                                           ),
                                           const SizedBox(height: 10),
                                           // Text content
                                           Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
                                               const Text(
                                                 'Anxiety Support',
@@ -758,7 +542,8 @@ class HomePageNew extends StatelessWidget {
                                                       color: Color(0xFFCF6F59),
                                                       fontSize: 14,
                                                       fontFamily: 'Mulish',
-                                                      fontWeight: FontWeight.w600,
+                                                      fontWeight:
+                                                          FontWeight.w600,
                                                     ),
                                                   ),
                                                   const SizedBox(width: 4),
@@ -860,7 +645,8 @@ class HomePageNew extends StatelessWidget {
                                       'public/images/ChatTeardropDots.svg',
                                       width: 20,
                                       height: 20,
-                                      color: Colors.white,
+                                      colorFilter: ColorFilter.mode(
+                                          Colors.white, BlendMode.srcIn),
                                     ),
                                   ),
                                 ),
@@ -922,7 +708,8 @@ class HomePageNew extends StatelessWidget {
                                       'public/images/UsersThree.svg',
                                       width: 20,
                                       height: 20,
-                                      color: Colors.white,
+                                      colorFilter: ColorFilter.mode(
+                                          Colors.white, BlendMode.srcIn),
                                     ),
                                   ),
                                 ),
@@ -984,7 +771,8 @@ class HomePageNew extends StatelessWidget {
                                       'public/images/Tree.svg',
                                       width: 20,
                                       height: 20,
-                                      color: Colors.white,
+                                      colorFilter: ColorFilter.mode(
+                                          Colors.white, BlendMode.srcIn),
                                     ),
                                   ),
                                 ),
