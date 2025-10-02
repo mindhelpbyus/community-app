@@ -51,7 +51,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
               _buildNavItem(
                 index: 3,
                 iconPath: 'public/images/Tree.svg',
-                label: 'Plan',
+                label: 'Visits',
               ),
             ],
           ),

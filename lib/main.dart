@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'widgets/app_layout.dart';
 import 'widgets/bottom_navigation_bar.dart';
+import 'widgets/top_navigation_bar.dart';
 import 'pages/explore_page.dart';
 import 'pages/doctor_profile_page.dart';
 import 'pages/chat_list_page.dart';
 import 'pages/chat_page.dart';
+import 'pages/visits_page.dart';
 
 void main() {
   runApp(const FigmaToCodeApp());
@@ -86,6 +88,34 @@ class _FigmaToCodeAppState extends State<FigmaToCodeApp> {
             ExplorePage(onDoctorTap: _showDoctorProfilePage),
           ],
         );
+      case 3:
+        return Scaffold(
+          backgroundColor: const Color(0xFFFAF8F1),
+          body: Column(
+            children: [
+              SizedBox(height: 26),
+              TopNavigationBar(
+                onProfileTap: () {
+                  print('Profile tapped');
+                },
+                onSearchTap: () {
+                  print('Search tapped');
+                },
+                onNotificationTap: () {
+                  print('Notification tapped');
+                },
+                showNotificationDot: true,
+              ),
+              Expanded(
+                child: VisitsPage(),
+              ),
+            ],
+          ),
+          bottomNavigationBar: CustomBottomNavigationBar(
+            selectedIndex: _selectedIndex,
+            onItemTapped: _onItemTapped,
+          ),
+        );
       default:
         return ListView(
           children: [
@@ -118,24 +148,26 @@ class _FigmaToCodeAppState extends State<FigmaToCodeApp> {
           ? _getSelectedPage() // Return the doctor profile Scaffold directly
           : _selectedIndex == 1 
             ? _getSelectedPage() // Return chat page directly without AppLayout
-            : AppLayout(
-                selectedIndex: _selectedIndex,
-                onItemTapped: _onItemTapped,
-                onProfileTap: () {
-                  // Handle profile tap
-                  print('Profile tapped');
-                },
-                onSearchTap: () {
-                  // Handle search tap
-                  print('Search tapped');
-                },
-                onNotificationTap: () {
-                  // Handle notification tap
-                  print('Notification tapped');
-                },
-                showNotificationDot: true,
-                child: _getSelectedPage(),
-              ),
+            : _selectedIndex == 3
+              ? _getSelectedPage() // Return visits page directly without AppLayout
+              : AppLayout(
+                  selectedIndex: _selectedIndex,
+                  onItemTapped: _onItemTapped,
+                  onProfileTap: () {
+                    // Handle profile tap
+                    print('Profile tapped');
+                  },
+                  onSearchTap: () {
+                    // Handle search tap
+                    print('Search tapped');
+                  },
+                  onNotificationTap: () {
+                    // Handle notification tap
+                    print('Notification tapped');
+                  },
+                  showNotificationDot: true,
+                  child: _getSelectedPage(),
+                ),
         '/doctor-profile': (context) => AppLayout(
           selectedIndex: _selectedIndex,
           onItemTapped: _onItemTapped,
